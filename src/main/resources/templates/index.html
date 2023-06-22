@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="fragments :: head"></th:block>
+    <title>Elenco Pizze</title>
+</head>
+<body>
+<h1>Pizzeria da Ciro</h1>
+
+<table>
+  <tr>
+    <th>Nome</th>
+    <th>Descrizione</th>
+    <th>Foto</th>
+    <th>Prezzo</th>
+  </tr>
+  <tr th:each="pizza : ${pizze}">
+    <td th:text="${pizza.nome}"></td>
+    <td th:text="${pizza.descrizione}"></td>
+    <td>
+      <img th:src="${pizza.fotoUrl}" alt="Foto Pizza" width="100" height="100" />
+    </td>
+    <td th:text="${pizza.prezzo}"></td>
+  </tr>
+</table>
+
+<div th:if="${pizze.isEmpty()}">
+  <p>Nessuna pizza presente.</p>
+</div>
+</body>
+</html>

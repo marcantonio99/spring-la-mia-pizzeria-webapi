@@ -1,0 +1,2 @@
+INSERT INTO pizza (id, nome, descrizione, foto_url, prezzo) VALUES ('1', 'Margherita', 'Pizza classica con pomodoro, mozzarella e basilico fresco.', 'URL_immagine_Margherita', 8.99);
+INSERT INTO pizza (id, nome, descrizione, foto_url, prezzo) VALUES ('2', 'Diavola', 'Pizza piccante con pomodoro, mozzarella, salame piccante e peperoncino.', 'URL_immagine_Diavola', 9.99):
