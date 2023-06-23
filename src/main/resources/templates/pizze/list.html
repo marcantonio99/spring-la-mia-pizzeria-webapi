@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <th:block th:replace="fragments :: head"></th:block>
-    <title>Elenco Pizze</title>
+<head th:replace="~{/fragments/resources :: head(pageTitle='Pizza List')}">
 </head>
 <body>
+<nav th:replace="~{/fragments/navbar :: navbar(current='pizze')}"></nav>
+
 <h1>Pizzeria da Ciro</h1>
 
 <table>
@@ -14,7 +14,7 @@
     <th>Foto</th>
     <th>Prezzo</th>
   </tr>
-  <tr th:each="pizza : ${pizze}">
+  <tr th:each="pizza : ${pizzaList}">
     <td th:text="${pizza.nome}"></td>
     <td th:text="${pizza.descrizione}"></td>
     <td>
@@ -23,9 +23,6 @@
     <td th:text="${pizza.prezzo}"></td>
   </tr>
 </table>
-
-<div th:if="${pizze.isEmpty()}">
-  <p>Nessuna pizza presente.</p>
-</div>
+<script th:src="@{/webjars/bootstrap/5.2.3/js/bootstrap.bundle.min.js}"></script>
 </body>
 </html>
