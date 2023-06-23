@@ -1,2 +1,2 @@
-INSERT INTO pizza (id, nome, descrizione, foto_url, prezzo) VALUES ('1', 'Margherita', 'Pizza classica con pomodoro, mozzarella e basilico fresco.', 'URL_immagine_Margherita', 8.99);
-INSERT INTO pizza (id, nome, descrizione, foto_url, prezzo) VALUES ('2', 'Diavola', 'Pizza piccante con pomodoro, mozzarella, salame piccante e peperoncino.', 'URL_immagine_Diavola', 9.99):
+INSERT INTO pizza (id, nome, descrizione, foto_url, prezzo) VALUES ('1', 'Margherita', 'Pizza classica con pomodoro, mozzarella e basilico fresco.', 'https://img.freepik.com/free-photo/freshly-baked-pizza-rustic-wooden-table-generated-by-ai_24640-81013.jpg?size=626&ext=jpg', 8.99);
+INSERT INTO `pizza` (`id`, `nome`, `descrizione`, `foto_url`, `prezzo`) VALUES ('2', 'Diavola', 'Pizza con pomodoro, mozzarella e salame piccante.', 'https://img.freepik.com/premium-photo/traditional-italian-pizza-with-eggplants-mozzarella-basil-tomatoes-wooden-background_116118-2239.jpg?size=626&ext=jpg', 9.99);

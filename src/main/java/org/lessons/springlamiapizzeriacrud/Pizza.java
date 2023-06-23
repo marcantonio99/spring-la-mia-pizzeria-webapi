@@ -12,11 +12,13 @@ public class Pizza {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String nome;
     private String descrizione;
     private String fotoUrl;
+    @Column(nullable = false)
     private BigDecimal prezzo;
+
 
 
     public Integer getId() {

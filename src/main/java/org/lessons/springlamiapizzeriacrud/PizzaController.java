@@ -11,12 +11,9 @@ import java.util.List;
 @Controller
 @RequestMapping("/")
 public class PizzaController {
-    private final PizzaRepository pizzaRepository;
 
     @Autowired
-    public PizzaController(PizzaRepository pizzaRepository) {
-        this.pizzaRepository = pizzaRepository;
-    }
+    public PizzaRepository pizzaRepository;
 
     @GetMapping("/")
     public String index(Model model) {
