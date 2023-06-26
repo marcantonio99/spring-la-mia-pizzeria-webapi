@@ -6,8 +6,12 @@
    <nav th:replace="~{/fragments/navbar :: navbar(current='pizze')}"></nav>
    <div class="container" th:object="${pizza}">
        <h1 th:text="*{nome}"></h1>
-       <h2 class="text-muted" th:text="*{descrizione}"></h2>
+       <h3 class="text-muted" th:text="|Prezzo: *{prezzo} €|"></h3>
        <hr>
+       <dl>
+           <dt>Descrizione</dt>
+           <dd th:text="*{descrizione}"></dd>
+       </dl>
    </div>
 </body>
 </html>
