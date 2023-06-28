@@ -1,6 +1,7 @@
 package org.lessons.springlamiapizzeriacrud;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 
 import java.math.BigDecimal;
 
@@ -12,6 +13,7 @@ public class Pizza {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @NotBlank
     @Column(nullable = false)
     private String nome;
     private String descrizione;
@@ -40,5 +42,4 @@ public class Pizza {
     public BigDecimal getPrezzo() {
         return prezzo;
     }
-
 }
