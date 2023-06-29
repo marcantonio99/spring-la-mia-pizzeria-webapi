@@ -2,20 +2,21 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head th:insert="~{/fragments/resources :: head(pageTitle='Pizza List')}">
 </head>
-<body>
+<body th:with="isEdit=${pizza.id != null}">
 <nav th:replace="~{/fragments/navbar :: navbar(current='pizze')}"></nav>
 <div class="container">
-  <h1>Nuova Pizza</h1>
+  <h1 th:text="${isEdit ? 'Edit Pizza' : 'New Pizza'}"></h1>
   <hr>
 
   <form
-    th:action="@{isEdit ? '/pizze/edit' + pizza.id : '/pizze/create'}"
+    th:with="formAction=${isEdit ? '/pizze/edit/' + pizza.id : '/pizze/create'}"
+    th:action="@{${formAction}}"
     th:object="${pizza}"
     method="post"
     id="pizza-form"
     class="row">
 
-    <div th:if="${$fields.hasErrors()}">
+    <div th:if="${#fields.hasErrors()}">
       <ul>
         <li th:each="err : ${#fields.allErrors()}" th:text="${err}"></li>
       </ul>
@@ -25,7 +26,7 @@
       <label class="form-label" for="pizza-nome">Nome</label>
       <input class="form-control" type="text" id="pizza-nome" th:field="*{nome}">
     </div>
-    <div th:if="${$fields.hasErrors('nome')}">
+    <div th:if="${#fields.hasErrors('nome')}">
       <ul>
         <li th:each="err : ${#fields.errors('nome')}" th:text="${err}"></li>
       </ul>
@@ -34,7 +35,7 @@
       <label class="form-label" for="pizza-descrizione">Descrizione</label>
       <input class="form-control" type="text" id="pizza-descrizione" th:field="*{descrizione}">
     </div>
-    <div th:if="${$fields.hasErrors('descrzione')}">
+    <div th:if="${#fields.hasErrors('descrizione')}">
       <ul>
         <li th:each="err : ${#fields.errors('descrizione')}" th:text="${err}"></li>
       </ul>

@@ -41,14 +41,19 @@ public class PizzaController {
     @GetMapping("/{id}")
     public String detail(@PathVariable("id") Integer pizzaId, Model model){
 
-         Optional<Pizza> result = pizzaRepository.findById(pizzaId);
+        /* Optional<Pizza> result = pizzaRepository.findById(pizzaId);
          if (result.isPresent()){
              model.addAttribute("pizza", result.get());
 
              return "/pizze/detail";
          }else {
              throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Pizza id" + pizzaId + "not found");
-         }
+         }*/
+
+        Pizza pizza = getPizzaById(pizzaId);
+        model.addAttribute("pizza", pizza);
+
+        return "/pizze/detail";
     }
 
     @GetMapping("/create")
@@ -71,15 +76,30 @@ public class PizzaController {
 
     @GetMapping("/edit/{id}")
     public String edit(@PathVariable Integer id, Model model){
+        Pizza pizza = getPizzaById(id);
+
+        model.addAttribute("pizza", pizza);
+        return "/pizze/edit";
+    }
+
+    @PostMapping("/edit/{id}")
+    public String doEdit(@PathVariable Integer id,
+                         @Valid @ModelAttribute("pizza") Pizza formPizza,
+                         BindingResult bindingResult){
+        Pizza pizzaToEdit = getPizzaById(id);
+
+        formPizza.setId(pizzaToEdit.getId());
+
+        pizzaRepository.save(formPizza);
+        return "redirect:/pizze";
+    }
+
+    private Pizza getPizzaById(Integer id){
         Optional<Pizza> result = pizzaRepository.findById(id);
 
         if (result.isEmpty()){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, id + "not found");
         }
-
-        model.addAttribute("pizza", result.get());
-        return "/pizze/edit";
+        return result.get();
     }
-
-
 }
