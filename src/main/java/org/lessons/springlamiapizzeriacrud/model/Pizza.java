@@ -1,4 +1,4 @@
-package org.lessons.springlamiapizzeriacrud;
+package org.lessons.springlamiapizzeriacrud.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;

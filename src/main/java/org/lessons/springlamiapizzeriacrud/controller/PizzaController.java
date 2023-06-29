@@ -1,7 +1,7 @@
 package org.lessons.springlamiapizzeriacrud.controller;
 
 import jakarta.validation.Valid;
-import org.lessons.springlamiapizzeriacrud.Pizza;
+import org.lessons.springlamiapizzeriacrud.model.Pizza;
 import org.lessons.springlamiapizzeriacrud.repository.PizzaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -11,8 +11,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.naming.Binding;
-import java.awt.print.Book;
 import java.util.List;
 import java.util.Optional;
 
