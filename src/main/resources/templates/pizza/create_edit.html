@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <th:block th:replace="~{/fragments/resources :: head(title='Pizzeria')}"></th:block>
+</head>
+
+<!-- inserisco variabile isEdit come flag create/edit -->
+<body th:with="isEdit=${pizza.id != null}">
+<div class="container">
+    <h1 th:text="${isEdit ? 'Modifica ' + pizza.name : 'Aggiungi pizza al menù'}" class="text-danger text-center my-3"></h1>
+
+    <!-- nel form controllo isEdit e in base a quello setto action su create o edit -->
+    <form th:action="@{${isEdit ? '/pizza/edit/' + pizza.id : '/pizza/create'}}" th:object="${pizza}"
+          id="pizza_form" method="POST" enctype="multipart/form-data" class="row">
+        <div class="mb-3 col-6">
+            <label for="name" class="form-label bg-warning p-1 rounded">Nome pizza</label>
+            <input type="text" class="form-control" id="name" th:field="*{name}"
+                   th:errorClass="is-invalid">
+            <div th:if="${#fields.hasErrors('name')}" class="invalid-feedback">
+                <ul>
+                    <li th:each="err : ${#fields.errors('name')}" th:text="${err}"></li>
+                </ul>
+            </div>
+        </div>
+        <div class="mb-3 col-6">
+            <label for="price" class="form-label bg-warning p-1 rounded">Prezzo</label>
+            <input type="number" class="form-control" id="price" th:field="*{price}"
+                   pattern="^\d{1,3}(\.\d{2})$" step="0.01" min="1.00" max="999.99"
+                   th:errorClass="is-invalid">
+            <div th:if="${#fields.hasErrors('price')}" class="invalid-feedback">
+                <ul>
+                    <li th:each="err : ${#fields.errors('price')}" th:text="${err}"></li>
+                </ul>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="description" class="form-label bg-warning p-1 rounded">Descrizione</label>
+            <textarea class="form-control" id="description" th:field="*{description}" rows="6"
+                      th:errorClass="is-invalid"></textarea>
+            <div th:if="${#fields.hasErrors('description')}" class="invalid-feedback">
+                <ul>
+                    <li th:each="err : ${#fields.errors('description')}" th:text="${err}"></li>
+                </ul>
+            </div>
+        </div>
+        <!--
+        <div class="mb-3">
+              <label for="image" class="form-label bg-warning p-1 rounded">Immagine</label>
+              <input type="file" class="form-control" id="image" th:field="*{image}"
+                    th:errorClass="is-invalid">
+              <div th:if="${#fields.hasErrors('image')}" class="invalid-feedback">
+                    <ul>
+                          <li th:each="err : ${#fields.errors('image')}" th:text="${err}"></li>
+                    </ul>
+              </div>
+        </div>
+        -->
+
+        <!-- categorie -->
+        <div class="card col-4">
+            <div class="card-body">
+                <span class="bg-warning p-1 rounded">Ingredienti</span>
+                <div class="form-check mt-2" th:each="ingredient : ${ingredientList}">
+                    <input class="form-check-input" type="checkbox" th:value="${ingredient.id}" th:id="|ingredient_${ingredient.id}|"
+                           th:field="*{ingredients}">
+                    <label class="form-check-label" th:for="|ingredient_${ingredient.id}|" th:text="${ingredient.name}">
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-3">
+            <button class="btn btn-success px-3" type="submit">Crea</button>
+            <a class="btn btn-primary px-3" th:href="@{/pizza}">Back</a>
+        </div>
+    </form>
+</div>
+</body>
+
+</html>

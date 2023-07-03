@@ -1,103 +1,161 @@
 package org.lessons.springlamiapizzeriacrud.controller;
 
 import jakarta.validation.Valid;
+import org.lessons.springlamiapizzeriacrud.messages.Alert;
+import org.lessons.springlamiapizzeriacrud.messages.AlertType;
 import org.lessons.springlamiapizzeriacrud.model.Pizza;
+import org.lessons.springlamiapizzeriacrud.repository.IngredientRepository;
 import org.lessons.springlamiapizzeriacrud.repository.PizzaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 @Controller
-@RequestMapping("/pizze")
+@RequestMapping("/pizza")
 public class PizzaController {
 
     @Autowired
-    public PizzaRepository pizzaRepository;
+    private PizzaRepository pizzaRepository;
 
+    @Autowired
+    private IngredientRepository ingredientRepository;
+
+    // INDEX
     @GetMapping
-    public String list(@RequestParam(name = "keyword", required = false) String searchString, Model model) {
-        List<Pizza> pizze;
-
-        if (searchString == null || searchString.isBlank()){
-            pizze = pizzaRepository.findAll();
-        }else {
-            pizze = pizzaRepository.findByNome(searchString);
+    public String index(Model model, @RequestParam(name = "keyword", required = false) String search) {
+        // inizializzo pizza
+        List<Pizza> pizza;
+        // se non ho param prendo tutto
+        if(search == null || search.isBlank()) {
+            pizza = pizzaRepository.findAll();
+        } else {
+            // altrimenti query personalizzata
+            pizza = pizzaRepository.findByNameContainingIgnoreCase(search);
         }
-
-        model.addAttribute("pizzaList", pizze);
-        model.addAttribute("searchInput", searchString);
-        return "/pizze/list";
+        model.addAttribute("pizzaList", pizza);
+        // mando valore di search per occupare campo di input search
+        model.addAttribute("search", search == null ? "" : search);
+        return "/pizza/index";
     }
 
+    // SHOW
     @GetMapping("/{id}")
-    public String detail(@PathVariable("id") Integer pizzaId, Model model){
-
-        /* Optional<Pizza> result = pizzaRepository.findById(pizzaId);
-         if (result.isPresent()){
-             model.addAttribute("pizza", result.get());
-
-             return "/pizze/detail";
-         }else {
-             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Pizza id" + pizzaId + "not found");
-         }*/
-
-        Pizza pizza = getPizzaById(pizzaId);
-        model.addAttribute("pizza", pizza);
-
-        return "/pizze/detail";
-    }
-
-    @GetMapping("/create")
-    public String create(Model model){
-        model.addAttribute("pizza", new Pizza());
-        return "/pizze/create";
-    }
-
-    @PostMapping("/create")
-    public String store(@Valid @ModelAttribute("pizza") Pizza formPizza, BindingResult bindingResult){
-
-        if (bindingResult.hasErrors()){
-            return "/pizze/edit";
-        }
-
-        pizzaRepository.save(formPizza);
-
-        return "redirect:/pizze";
-    }
-
-    @GetMapping("/edit/{id}")
-    public String edit(@PathVariable Integer id, Model model){
+    public String show(Model model, @PathVariable Integer id) {
+        // recupero pizza con id corrispondente
         Pizza pizza = getPizzaById(id);
-
+        // e la passo tramite model
         model.addAttribute("pizza", pizza);
-        return "/pizze/edit";
+        return "/pizza/show";
     }
 
-    @PostMapping("/edit/{id}")
-    public String doEdit(@PathVariable Integer id,
-                         @Valid @ModelAttribute("pizza") Pizza formPizza,
-                         BindingResult bindingResult){
-        Pizza pizzaToEdit = getPizzaById(id);
-
-        formPizza.setId(pizzaToEdit.getId());
-
-        pizzaRepository.save(formPizza);
-        return "redirect:/pizze";
+    // CREATE
+    @GetMapping("/create")
+    public String create(Model model) {
+        // passo l'attributo pizza che è un oggetto Pizza vuoto
+        model.addAttribute("pizza", new Pizza());
+        // passo la lista degli ingredienti per le checkbox
+        model.addAttribute("ingredientList", ingredientRepository.findAll());
+        return "/pizza/create_edit";
     }
 
-    private Pizza getPizzaById(Integer id){
-        Optional<Pizza> result = pizzaRepository.findById(id);
-
-        if (result.isEmpty()){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, id + "not found");
+    // STORE
+    @PostMapping("/create")
+    public String store(@Valid @ModelAttribute("pizza") Pizza formPizza, BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes) {
+        // controllo che il nome sia univoco
+        if (!isUniqueName(formPizza)) {
+            // aggiungo errore personalizzato in bindingResult
+            bindingResult.addError(new FieldError("pizza", "name", formPizza.getName(), false, null, null , "Nome già presente in database"));
         }
-        return result.get();
+        // controllo se ci sono stati errori e nel caso rimando a form create
+        if (bindingResult.hasErrors()) {
+            // passo la lista degli ingredienti per le checkbox
+            model.addAttribute("ingredientList", ingredientRepository.findAll());
+            return "/pizza/create_edit";
+        }
+        // setto data e ora di creazione al momento di creazione stessa
+        formPizza.setCreatedAt(LocalDateTime.now());
+        // metodo save crea se non trova corrispondenza altrimenti fa update
+        pizzaRepository.save(formPizza);
+        // aggiungo alert di corretto delete come flashAttribute
+        redirectAttributes.addFlashAttribute("message", new Alert(AlertType.SUCCESS, formPizza.getName() + " creata correttamente."));
+        return "redirect:/pizza";
+    }
+
+    // EDIT
+    @GetMapping("/edit/{id}")
+    public String edit(@PathVariable Integer id, Model model) {
+        // recupero pizza tramite id
+        Pizza pizza = getPizzaById(id);
+        // e lo passo tramite model
+        model.addAttribute("pizza", pizza);
+        // passo la lista degli ingredienti per le checkbox
+        model.addAttribute("ingredientList", ingredientRepository.findAll());
+        return "/pizza/create_edit";
+    }
+
+    // UPDATE
+    @PostMapping("/edit/{id}")
+    public String update(@PathVariable Integer id, @Valid @ModelAttribute("pizza") Pizza formPizza, Model model, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
+        // recupero pizza pre modifica tramite id
+        Pizza pizza = getPizzaById(id);
+        // controllo che il nome o sia lo stesso di prima o che quello nuovo sia unico altrimenti...
+        if (!pizza.getName().equals(formPizza.getName()) && !isUniqueName(formPizza)) {
+            // ...aggiungo errore personalizzato in bindingResult
+            bindingResult.addError(new FieldError("pizza", "name", formPizza.getName(), false, null, null , "Nome già presente in database"));
+        }
+        // controllo se ci sono stati errori e nel caso rimando a form create
+        if (bindingResult.hasErrors()) {
+            // passo la lista degli ingredienti per le checkbox
+            model.addAttribute("ingredientList", ingredientRepository.findAll());
+            return "/pizza/create_edit";
+        }
+        // aggiungo dati che non modifichiamo nel form
+        formPizza.setId(pizza.getId());
+        formPizza.setCreatedAt(pizza.getCreatedAt());
+        // salvo le modifiche
+        pizzaRepository.save(formPizza);
+        // aggiungo alert di corretto update come flashAttribute
+        redirectAttributes.addFlashAttribute("message", new Alert(AlertType.SUCCESS, formPizza.getName() + " modificata correttamente."));
+        return "redirect:/pizza";
+    }
+
+    // DELETE
+    @PostMapping("/delete/{id}")
+    public String delete(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
+        // verifichiamo prima se la pizza è presente
+        Pizza pizza = getPizzaById(id);
+        pizzaRepository.delete(pizza);
+        // aggiungo alert di corretto delete come flashAttribute
+        redirectAttributes.addFlashAttribute("message", new Alert(AlertType.SUCCESS, pizza.getName() + " rimossa correttamente."));
+        return "redirect:/pizza";  // redirect dopo delete di oggetto
+    }
+
+    //-------------------------------------------------
+
+    // metodo che verifica presenza in database di un nome di pizza già presente
+    private boolean isUniqueName(Pizza formPizza) {
+        Optional<Pizza> result = pizzaRepository.findByName(formPizza.getName());
+        return result.isEmpty();
+    }
+
+    // metodo per recuperare pizza da database tramite id
+    private Pizza getPizzaById(Integer id) {
+        // recupero pizza con id corrispondente
+        Optional<Pizza> pizzaId = pizzaRepository.findById(id);
+        // se non esiste lancia eccezione
+        if (pizzaId.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Pizza inesistente");
+        }
+        return pizzaId.get();
     }
 }
