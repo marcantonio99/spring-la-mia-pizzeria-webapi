@@ -42,10 +42,12 @@ public class SecurityConfiguration {
                 .requestMatchers("/pizza/edit/**").hasAuthority("ADMIN")
                 .requestMatchers("/pizza/**").hasAnyAuthority("ADMIN", "USER")
                 .requestMatchers("/offers/**").hasAuthority("ADMIN")
-                .requestMatchers(HttpMethod.POST).hasAuthority("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/pizzas/**").hasAuthority("ADMIN")
                 .requestMatchers("/**").permitAll()
                 .and().formLogin()
                 .and().logout();
+        //disabilito csrf per chiamate api
+        http.csrf().disable();
         return http.build();
     }
 }
